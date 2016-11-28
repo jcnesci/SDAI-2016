@@ -14,27 +14,29 @@ void setup() {
   background(0);
   myMovie = new Movie(this, "yosemite.mp4");
   myMovie.loop();
+  myMovie.volume(0);
   surface.setResizable(true);
   
 }
 
 void draw() {
   
+  background(0);
+  
   if (!isFirstLoop) {
     
     // ACT 1
     // - Part 1
-    //image(myMovie, 0, 0);          // Play original movie, under.
+    image(myMovie, 0, 0);          // Play original movie, under.
     
     // - Part 2
     float movieProgress = myMovie.time()/myMovie.duration();
-    println("movieProgress: "+ movieProgress);
-    if (movieProgress > 0.01) {
-      tint(255, 255, 255 , 255);         // Use tint() to mix original/glitched layers: tint(R,G,B,A) each component is amount up to 255.
+    //println("movieProgress: "+ movieProgress);
+    //if (movieProgress > 0.01) {
+      //tint(255, 255, 255 , 255);         // Use tint() to mix original/glitched layers: tint(R,G,B,A) each component is amount up to 255.
       image(glitchImage, 0, 0);      // Play glitched version of movie, above.
-    }
+    //}
     
-    myMovie.volume(0);
     filter(GRAY);
   }
   
@@ -47,9 +49,9 @@ void movieEvent(Movie m) {
   m.read();
   
   if (isFirstLoop) {
-    isFirstLoop = false;
     surface.setSize(myMovie.width, myMovie.height);
     glitchImage = myMovie.get();
+    isFirstLoop = false;
   }
   
   arrayCopy(m.pixels, glitchImage.pixels);
