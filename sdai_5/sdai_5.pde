@@ -58,15 +58,19 @@ void draw() {
   
   // The glitched movie image. Show it based on progress of the original movie.
   float origMovieProgressNorm = origMovie.time()/origMovie.duration();
-  float startGlitchThresholdNorm = 0.25;
+  float startGlitchThresholdNorm = 0.5;
   if (origMovieProgressNorm >= startGlitchThresholdNorm) {
-   float glitchAlpha = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0, 255);
-   println("Running glitch | Alpha: "+ glitchAlpha);
-   tint(255, 255, 255 , glitchAlpha);
-   image(glitchImage, 0, 0);
+    float glitchAlpha = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0, 255);
+    println("Running glitch | Alpha: "+ glitchAlpha);
+    tint(255, 255, 255 , glitchAlpha);
+    image(glitchImage, 0, 0);
   }
   
-  filter(GRAY);
+  // Ramp from global grayscale to color: starts @ startGlitchThresholdNorm - stop @ end of movie.
+  float colorThreshold = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0.0, 1.0);
+  if (random(1) > colorThreshold) {
+    filter(GRAY);
+  }
   
 }
 
