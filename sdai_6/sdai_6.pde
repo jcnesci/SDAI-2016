@@ -1,8 +1,4 @@
 //TODO:
-// - PART 1: 
-//  - add triggering of glitch mode after 25% of orig movie; start at 0 opacity and ramp up to 100. 
-//    - (Maybe add variable framerate for glitch too, ramping it up.)
-//  - add triggering of color in orig movie at 75% of orig movie; start at 0 color and ramp up to 100.
 // - add more glitch modes from Kim's original sketch (black, white, brightness modes).
 // - randomize either R,G,or B in tint()
 
