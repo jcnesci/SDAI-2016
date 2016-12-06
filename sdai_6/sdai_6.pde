@@ -24,11 +24,12 @@ int row = 0;
 int lastOrigMovieTime = 0;
 float colorThreshold = 0;
 float glitchAlpha = 0;
+PImage[] errorImages = new PImage[6];
+int longErrorImageIndex = 0;
 boolean showLongError = false;
 float longErrorEndTime = 0;
 float longErrorX = 0;
 float longErrorY = 0;
-PImage[] errorImages = new PImage[6];
 
 void setup() {
   
@@ -41,10 +42,10 @@ void setup() {
   if (mode == "vashti") {
     //origMovie = new Movie(this, "yosemite.mp4");
     origMovie = new Movie(this, "yosemite-10sec.mp4");
-    errorImg = loadImage("error-mac-red-1.png");
-    //for ( int i = 0; i< images.length; i++ ) {
-    //  images[i] = loadImage( i + ".jpg" );   // make sure images "0.jpg" to "11.jpg" exist
-    //}
+    //errorImg = loadImage("error-mac-red-1.png");
+    for (int i = 0; i < errorImages.length; i++) {
+      errorImages[i] = loadImage("error-mac-"+ (i + 1) +".png" );
+    }
   } else if (mode == "kuno") {
     origMovie = new Movie(this, "linux.mp4");
     errorImg = loadImage("error-mac-red-1.png");
@@ -112,15 +113,18 @@ void draw() {
   // Error dialog boxes.
   if ((origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.4) || (origMovieProgressNorm >= 0.6 && origMovieProgressNorm < 0.8)) {
     if (random(1) >= 0.8) {
-      image(errorImg, random(width), random(height));
+      //image(errorImg, random(width), random(height));
+      int index = int(random(errorImages.length));
+      image(errorImages[index], random(width), random(height));
     }
     if (showLongError && millis() < longErrorEndTime) {
-      image(errorImg, longErrorX, longErrorY);
+      image(errorImages[longErrorImageIndex], longErrorX, longErrorY);
     } else {
       showLongError = false;
       if (random(1) >= 0.4) {
         showLongError = true;
         longErrorEndTime = millis() + 2000;
+        longErrorImageIndex = int(random(errorImages.length));
         longErrorX = random(width);
         longErrorY = random(height);
       }
@@ -128,8 +132,8 @@ void draw() {
   }
   
   // DEV PRINTS
-  println("origMovieFrameRate: "+ origMovieFrameRate +" | colorThreshold: "+ colorThreshold);
-  println("- glitch alpha: "+ glitchAlpha);
+  //println("origMovieFrameRate: "+ origMovieFrameRate +" | colorThreshold: "+ colorThreshold);
+  //println("- glitch alpha: "+ glitchAlpha);
   
 }
 
