@@ -1,18 +1,22 @@
 //TODO:
-// - add more glitch modes from Kim's original sketch (black, white, brightness modes).
+// - add more glitch modes from Kim's original sketch (black, white, brightness modes)
 // - randomize either R,G,or B in tint()
+// - clean unused vars
+// - record movies:
+//  - vashti movie
+//  - kuno movie
+//  - vashti, then kuno movie
 
 import processing.video.*;
 
-String mode = "vashti";                               // is 'vashti' or 'kuno'. 
+String mainCharacter = "kuno";                               // is 'vashti' or 'kuno'. 
 int appFrameRate = 200;
-float startingOrigMovieFrameRate = 200; 
-float origMovieFrameRate = startingOrigMovieFrameRate;
+//float startingOrigMovieFrameRate = 200; 
+float origMovieFrameRate = 60;
 Movie origMovie;                                      // The original movie, without glitching/effects.
 boolean showOrigMovie = true;
 boolean isFirstLoop = true;
 PImage glitchImage;
-PImage errorImg;
 int glitchMode = 0;
 int loops = 20;
 int blackValue = -16000000;
@@ -35,16 +39,20 @@ void setup() {
   background(0);
   surface.setResizable(true);
   
-  if (mode == "vashti") {
+  if (mainCharacter == "vashti") {
+    origMovieFrameRate = 200;
     //origMovie = new Movie(this, "yosemite.mp4");
     origMovie = new Movie(this, "yosemite-10sec.mp4");
-    //errorImg = loadImage("error-mac-red-1.png");
     for (int i = 0; i < errorImages.length; i++) {
       errorImages[i] = loadImage("error-mac-"+ (i + 1) +".png" );
     }
-  } else if (mode == "kuno") {
-    origMovie = new Movie(this, "linux.mp4");
-    errorImg = loadImage("error-mac-red-1.png");
+  } else if (mainCharacter == "kuno") {
+    origMovieFrameRate = 30;
+    //origMovie = new Movie(this, "linux.mp4");
+    origMovie = new Movie(this, "linux-10sec.mp4");
+    for (int i = 0; i < errorImages.length; i++) {
+      errorImages[i] = loadImage("error-linux-"+ (i + 1) +".png" );
+    }
   }
   
   origMovie.loop();                                      //DEV
@@ -64,68 +72,133 @@ void draw() {
   }
   
   float origMovieProgressNorm = origMovie.time()/origMovie.duration();
-  float startGlitchThresholdNorm = 0.5;
   
-  // Draw original movie's image.
-  // Change origMovie framerate.
-  if (origMovieProgressNorm < 0.4) {
-    origMovieFrameRate = map(origMovieProgressNorm, 0.0, 0.4, 200, 30);
-  } else if (origMovieProgressNorm >= 0.4 && origMovieProgressNorm < 0.6) { 
-    showOrigMovie = false;
-  } else if (origMovieProgressNorm >= 0.6) {
-    showOrigMovie = true;
-    origMovieFrameRate = map(origMovieProgressNorm, 0.6, 1.0, 30, 200);
-  }
-  if (showOrigMovie) {
-    // Draw frame at specified framerate by origMovieFrameRate.
-    if ((millis()-lastOrigMovieTime) >= (1000/origMovieFrameRate)) {
-      tint(255, 255, 255 , 255);                                        // ie. tint(R,G,B,A) : [0-255]
-      image(origMovie, 0, 0);
-      lastOrigMovieTime = millis();
+  if (mainCharacter == "vashti") {
+      
+    // Draw original movie's image.
+    // Change origMovie framerate.
+    if (origMovieProgressNorm < 0.4) {
+      origMovieFrameRate = map(origMovieProgressNorm, 0.0, 0.4, 200, 30);
+    } else if (origMovieProgressNorm >= 0.4 && origMovieProgressNorm < 0.6) { 
+      showOrigMovie = false;
+    } else if (origMovieProgressNorm >= 0.6) {
+      showOrigMovie = true;
+      origMovieFrameRate = map(origMovieProgressNorm, 0.6, 1.0, 30, 200);
     }
-  }
-  
-  // The glitched movie image. Show it based on progress of the original movie.
-  if (origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.8) {
-   if (origMovieProgressNorm < 0.4) {
-     glitchAlpha = map(origMovieProgressNorm, 0.2, 0.4, 0, 255);
-   } else if (origMovieProgressNorm >= 0.6) {
-     glitchAlpha = map(origMovieProgressNorm, 0.6, 1.0, 255, 0);
-   }
-   tint(255, 255, 255 , glitchAlpha);
-   image(glitchImage, 0, 0);
-  }
-  
-  // Change coloring VS grayness of global result.
-  if (origMovieProgressNorm < 0.5) {
-    colorThreshold = map(origMovieProgressNorm, 0.0, 0.5, 0.0, 1.0);
-  } else {
-    colorThreshold = map(origMovieProgressNorm, 0.5, 1.0, 1.0, 0.0);
-  }
-  if (random(1) > colorThreshold) {
-    filter(GRAY);
-  }
-  
-  // Error dialog boxes.
-  if ((origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.4) || (origMovieProgressNorm >= 0.6 && origMovieProgressNorm < 0.8)) {
-    if (random(1) >= 0.8) {
-      //image(errorImg, random(width), random(height));
-      int index = int(random(errorImages.length));
-      image(errorImages[index], random(width), random(height));
-    }
-    if (showLongError && millis() < longErrorEndTime) {
-      image(errorImages[longErrorImageIndex], longErrorX, longErrorY);
-    } else {
-      showLongError = false;
-      if (random(1) >= 0.4) {
-        showLongError = true;
-        longErrorEndTime = millis() + 2000;
-        longErrorImageIndex = int(random(errorImages.length));
-        longErrorX = random(width);
-        longErrorY = random(height);
+    if (showOrigMovie) {
+      // Draw frame at specified framerate by origMovieFrameRate.
+      if ((millis()-lastOrigMovieTime) >= (1000/origMovieFrameRate)) {
+        tint(255, 255, 255 , 255);                                        // ie. tint(R,G,B,A) : [0-255]
+        image(origMovie, 0, 0);
+        lastOrigMovieTime = millis();
       }
     }
-  }
+    
+    // The glitched movie image. Show it based on progress of the original movie.
+    if (origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.8) {
+     if (origMovieProgressNorm < 0.4) {
+       glitchAlpha = map(origMovieProgressNorm, 0.2, 0.4, 0, 255);
+     } else if (origMovieProgressNorm >= 0.6) {
+       glitchAlpha = map(origMovieProgressNorm, 0.6, 1.0, 255, 0);
+     }
+     tint(255, 255, 255 , glitchAlpha);
+     image(glitchImage, 0, 0);
+    }
+    
+    // Change coloring VS grayness of global result.
+    if (origMovieProgressNorm < 0.5) {
+      colorThreshold = map(origMovieProgressNorm, 0.0, 0.5, 0.0, 1.0);
+    } else {
+      colorThreshold = map(origMovieProgressNorm, 0.5, 1.0, 1.0, 0.0);
+    }
+    if (random(1) > colorThreshold) {
+      filter(GRAY);
+    }
+    
+    // Error dialog boxes.
+    if ((origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.4) || (origMovieProgressNorm >= 0.6 && origMovieProgressNorm < 0.8)) {
+      if (random(1) >= 0.8) {
+        int index = int(random(errorImages.length));
+        image(errorImages[index], random(width), random(height));
+      }
+      if (showLongError && millis() < longErrorEndTime) {
+        image(errorImages[longErrorImageIndex], longErrorX, longErrorY);
+      } else {
+        showLongError = false;
+        if (random(1) >= 0.4) {
+          showLongError = true;
+          longErrorEndTime = millis() + (random(10000) + 2000);
+          longErrorImageIndex = int(random(errorImages.length));
+          longErrorX = random(width);
+          longErrorY = random(height);
+        }
+      }
+    }
+    
+  }// END - vashti
+  
+  if (mainCharacter == "kuno") {
+      
+    // Draw original movie's image.
+    // Change origMovie framerate.
+    showOrigMovie = false;
+    if (origMovieProgressNorm >= 0.35 && origMovieProgressNorm < 0.65) {
+     showOrigMovie = true;
+     if (origMovieProgressNorm < 0.5) {
+       origMovieFrameRate = map(origMovieProgressNorm, 0.4, 0.5, 30, 200);
+     } else {
+       origMovieFrameRate = map(origMovieProgressNorm, 0.5, 0.6, 200, 30);
+     }
+    }
+    if (showOrigMovie) {
+     // Draw frame at specified framerate by origMovieFrameRate.
+     if ((millis()-lastOrigMovieTime) >= (1000/origMovieFrameRate)) {
+       tint(255, 255, 255 , 255);                                        // ie. tint(R,G,B,A) : [0-255]
+       image(origMovie, 0, 0);
+       lastOrigMovieTime = millis();
+     }
+    }
+    
+    // The glitched movie image. Show it based on progress of the original movie.
+    if (origMovieProgressNorm < 0.45) {
+      glitchAlpha = map(origMovieProgressNorm, 0.0, 0.45, 255, 100);
+    } else if (origMovieProgressNorm >= 0.55) {
+      glitchAlpha = map(origMovieProgressNorm, 0.55, 1.0, 100, 255);
+    }
+    tint(255, 255, 255 , glitchAlpha);
+    image(glitchImage, 0, 0);
+    
+    // Change coloring VS grayness of global result.
+    if (origMovieProgressNorm < 0.5) {
+      colorThreshold = map(origMovieProgressNorm, 0.0, 0.5, 1.0, 0.0);
+    } else {
+      colorThreshold = map(origMovieProgressNorm, 0.5, 1.0, 0.0, 1.0);
+    }
+    if (random(1) > colorThreshold) {
+      filter(GRAY);
+    }
+    
+    // Error dialog boxes.
+    if ((origMovieProgressNorm >= 0.0 && origMovieProgressNorm < 0.2) || (origMovieProgressNorm >= 0.8 && origMovieProgressNorm < 1.0)) {
+     if (random(1) >= 0.8) {
+       int index = int(random(errorImages.length));
+       image(errorImages[index], random(width), random(height));
+     }
+     if (showLongError && millis() < longErrorEndTime) {
+       image(errorImages[longErrorImageIndex], longErrorX, longErrorY);
+     } else {
+       showLongError = false;
+       if (random(1) >= 0.4) {
+         showLongError = true;
+         longErrorEndTime = millis() + (random(10000) + 2000);
+         longErrorImageIndex = int(random(errorImages.length));
+         longErrorX = random(width);
+         longErrorY = random(height);
+       }
+     }
+    }
+    
+  }// END - kuno
   
   // DEV PRINTS
   //println("origMovieFrameRate: "+ origMovieFrameRate +" | colorThreshold: "+ colorThreshold);
