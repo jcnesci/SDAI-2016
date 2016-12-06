@@ -8,7 +8,7 @@
 
 import processing.video.*;
 
-String mainCharacter = "vashti";                               // is 'vashti' or 'kuno'. 
+String mainCharacter = "kuno";                               // is 'vashti' or 'kuno'. 
 int appFrameRate = 200;
 float origMovieFrameRate = 60;
 Movie origMovie;                                      // The original movie, without glitching/effects.
@@ -44,15 +44,15 @@ void setup() {
   
   if (mainCharacter == "vashti") {
     origMovieFrameRate = 200;
-    //origMovie = new Movie(this, "yosemite.mp4");
-    origMovie = new Movie(this, "yosemite-10sec.mp4");
+    origMovie = new Movie(this, "yosemite.mp4");
+    //origMovie = new Movie(this, "yosemite-10sec.mp4");
     for (int i = 0; i < errorImages.length; i++) {
       errorImages[i] = loadImage("error-mac-"+ (i + 1) +".png" );
     }
   } else if (mainCharacter == "kuno") {
     origMovieFrameRate = 30;
-    //origMovie = new Movie(this, "linux.mp4");
-    origMovie = new Movie(this, "linux-10sec.mp4");
+    origMovie = new Movie(this, "linux.mp4");
+    //origMovie = new Movie(this, "linux-10sec.mp4");
     for (int i = 0; i < errorImages.length; i++) {
       errorImages[i] = loadImage("error-linux-"+ (i + 1) +".png" );
     }
