@@ -11,7 +11,6 @@ import processing.video.*;
 
 String mainCharacter = "kuno";                               // is 'vashti' or 'kuno'. 
 int appFrameRate = 200;
-//float startingOrigMovieFrameRate = 200; 
 float origMovieFrameRate = 60;
 Movie origMovie;                                      // The original movie, without glitching/effects.
 boolean showOrigMovie = true;
@@ -21,6 +20,7 @@ int glitchMode = 0;
 int loops = 20;
 int blackValue = -16000000;
 int row = 0;
+int column = 0;
 int lastOrigMovieTime = 0;
 float colorThreshold = 0;
 float glitchAlpha = 0;
@@ -226,9 +226,21 @@ void movieEvent(Movie m) {
 
 void modifyGlitch() {
   
-  // Reset row counter if necessary.
+  // Reset column & row counter if necessary.
   if (row >= glitchImage.height-1) {
    row = 0;
+  }
+  if (column >= glitchImage.width-1) {
+   column = 0;
+  }
+  
+  // Loop through rows, glitching each.
+  while(column < glitchImage.width-1) {
+    //println("Sorting Column " + column);
+    glitchImage.loadPixels(); 
+    sortColumn();
+    column++;
+    glitchImage.updatePixels();
   }
   
   // Loop through rows, glitching each.
@@ -292,6 +304,55 @@ void sortRow() {
   }
 }
 
+void sortColumn() {
+  // current column
+  int x = column;
+  
+  // where to start sorting
+  int y = 0;
+  
+  // where to stop sorting
+  int yend = 0;
+  
+  while(yend < glitchImage.height-1) {
+    switch(glitchMode) {
+      case 0:
+        y = getFirstNotBlackY(x, y);
+        yend = getNextBlackY(x, y);
+        break;
+      case 1:
+        //y = getFirstBrightY(x, y);
+        //yend = getNextDarkY(x, y);
+        break;
+      case 2:
+        //y = getFirstNotWhiteY(x, y);
+        //yend = getNextWhiteY(x, y);
+        break;
+      default:
+        break;
+    }
+    
+    if(y < 0) break;
+    
+    int sortLength = yend-y;
+    
+    color[] unsorted = new color[sortLength];
+    color[] sorted = new color[sortLength];
+    
+    for(int i=0; i<sortLength; i++) {
+      unsorted[i] = glitchImage.pixels[x + (y+i) * glitchImage.width];
+    }
+    
+    sorted = sort(unsorted);
+    
+    for(int i=0; i<sortLength; i++) {
+      glitchImage.pixels[x + (y+i) * glitchImage.width] = sorted[i];
+    }
+    
+    y = yend+1;
+  }
+}
+
 // black x
 int getFirstNotBlackX(int x, int y) {
   
@@ -314,4 +375,32 @@ int getNextBlackX(int x, int y) {
   }
   
   return x-1;
+}
+
+// black y
+int getFirstNotBlackY(int x, int y) {
+
+  if(y < glitchImage.height) {
+    while(glitchImage.pixels[x + y * glitchImage.width] < blackValue) {
+      y++;
+      if(y >= glitchImage.height)
+        return -1;
+    }
+  }
+  
+  return y;
+}
+
+int getNextBlackY(int x, int y) {
+  y++;
+
+  if(y < glitchImage.height) {
+    while(glitchImage.pixels[x + y * glitchImage.width] > blackValue) {
+      y++;
+      if(y >= glitchImage.height)
+        return glitchImage.height-1;
+    }
+  }
+  
+  return y-1;
 }
