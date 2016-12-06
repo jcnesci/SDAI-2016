@@ -4,6 +4,7 @@
 //    - (Maybe add variable framerate for glitch too, ramping it up.)
 //  - add triggering of color in orig movie at 75% of orig movie; start at 0 color and ramp up to 100.
 // - add more glitch modes from Kim's original sketch (black, white, brightness modes).
+// - randomize either R,G,or B in tint()
 
 import processing.video.*;
 
@@ -21,6 +22,13 @@ int loops = 20;
 int blackValue = -16000000;
 int row = 0;
 int lastOrigMovieTime = 0;
+float colorThreshold = 0;
+float glitchAlpha = 0;
+boolean showLongError = false;
+float longErrorEndTime = 0;
+float longErrorX = 0;
+float longErrorY = 0;
+PImage[] errorImages = new PImage[6];
 
 void setup() {
   
@@ -34,13 +42,16 @@ void setup() {
     //origMovie = new Movie(this, "yosemite.mp4");
     origMovie = new Movie(this, "yosemite-10sec.mp4");
     errorImg = loadImage("error-mac-red-1.png");
+    //for ( int i = 0; i< images.length; i++ ) {
+    //  images[i] = loadImage( i + ".jpg" );   // make sure images "0.jpg" to "11.jpg" exist
+    //}
   } else if (mode == "kuno") {
     origMovie = new Movie(this, "linux.mp4");
     errorImg = loadImage("error-mac-red-1.png");
   }
   
-  //origMovie.loop();                                      //DEV
-  origMovie.play();                                      //DEV
+  origMovie.loop();                                      //DEV
+  //origMovie.play();                                      //DEV
   origMovie.volume(0);
   
 }
@@ -58,11 +69,18 @@ void draw() {
   float origMovieProgressNorm = origMovie.time()/origMovie.duration();
   float startGlitchThresholdNorm = 0.5;
   
-  // The original movie's image.
+  // Draw original movie's image.
+  // Change origMovie framerate.
+  if (origMovieProgressNorm < 0.4) {
+    origMovieFrameRate = map(origMovieProgressNorm, 0.0, 0.4, 200, 30);
+  } else if (origMovieProgressNorm >= 0.4 && origMovieProgressNorm < 0.6) { 
+    showOrigMovie = false;
+  } else if (origMovieProgressNorm >= 0.6) {
+    showOrigMovie = true;
+    origMovieFrameRate = map(origMovieProgressNorm, 0.6, 1.0, 30, 200);
+  }
   if (showOrigMovie) {
-    if (origMovieProgressNorm >= startGlitchThresholdNorm) {
-      origMovieFrameRate = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, startingOrigMovieFrameRate, 10);
-    }
+    // Draw frame at specified framerate by origMovieFrameRate.
     if ((millis()-lastOrigMovieTime) >= (1000/origMovieFrameRate)) {
       tint(255, 255, 255 , 255);                                        // ie. tint(R,G,B,A) : [0-255]
       image(origMovie, 0, 0);
@@ -71,25 +89,47 @@ void draw() {
   }
   
   // The glitched movie image. Show it based on progress of the original movie.
-  if (origMovieProgressNorm >= startGlitchThresholdNorm) {
-    float glitchAlpha = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0, 255);
-    println("Running glitch | Alpha: "+ glitchAlpha);
-    tint(255, 255, 255 , glitchAlpha);
-    image(glitchImage, 0, 0);
+  if (origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.8) {
+   if (origMovieProgressNorm < 0.4) {
+     glitchAlpha = map(origMovieProgressNorm, 0.2, 0.4, 0, 255);
+   } else if (origMovieProgressNorm >= 0.6) {
+     glitchAlpha = map(origMovieProgressNorm, 0.6, 1.0, 255, 0);
+   }
+   tint(255, 255, 255 , glitchAlpha);
+   image(glitchImage, 0, 0);
   }
   
-  // Ramp from global grayscale to color: starts @ startGlitchThresholdNorm - stop @ end of movie.
-  float colorThreshold = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0.0, 1.0);
+  // Change coloring VS grayness of global result.
+  if (origMovieProgressNorm < 0.5) {
+    colorThreshold = map(origMovieProgressNorm, 0.0, 0.5, 0.0, 1.0);
+  } else {
+    colorThreshold = map(origMovieProgressNorm, 0.5, 1.0, 1.0, 0.0);
+  }
   if (random(1) > colorThreshold) {
     filter(GRAY);
   }
   
-  // Error dialogs.
-  if (origMovieProgressNorm >= 0.2 && origMovieProgressNorm <= 0.4) {
-    if (random(1) > 0.5) {
-      image(errorImg, 0, 0);
+  // Error dialog boxes.
+  if ((origMovieProgressNorm >= 0.2 && origMovieProgressNorm < 0.4) || (origMovieProgressNorm >= 0.6 && origMovieProgressNorm < 0.8)) {
+    if (random(1) >= 0.8) {
+      image(errorImg, random(width), random(height));
+    }
+    if (showLongError && millis() < longErrorEndTime) {
+      image(errorImg, longErrorX, longErrorY);
+    } else {
+      showLongError = false;
+      if (random(1) >= 0.4) {
+        showLongError = true;
+        longErrorEndTime = millis() + 2000;
+        longErrorX = random(width);
+        longErrorY = random(height);
+      }
     }
   }
+  
+  // DEV PRINTS
+  println("origMovieFrameRate: "+ origMovieFrameRate +" | colorThreshold: "+ colorThreshold);
+  println("- glitch alpha: "+ glitchAlpha);
   
 }
 

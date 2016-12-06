@@ -27,7 +27,7 @@ void draw() {
     
     // ACT 1
     // - Part 1
-    image(myMovie, 0, 0);          // Play original movie, under.
+    //image(myMovie, 0, 0);          // Play original movie, under.
     
     // - Part 2
     float movieProgress = myMovie.time()/myMovie.duration();
