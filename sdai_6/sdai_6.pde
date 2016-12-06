@@ -1,5 +1,4 @@
 //TODO:
-// - add more glitch modes from Kim's original sketch (black, white, brightness modes)
 // - randomize either R,G,or B in tint()
 // - clean unused vars
 // - record movies:
@@ -9,18 +8,22 @@
 
 import processing.video.*;
 
-String mainCharacter = "kuno";                               // is 'vashti' or 'kuno'. 
+String mainCharacter = "vashti";                               // is 'vashti' or 'kuno'. 
 int appFrameRate = 200;
 float origMovieFrameRate = 60;
 Movie origMovie;                                      // The original movie, without glitching/effects.
 boolean showOrigMovie = true;
 boolean isFirstLoop = true;
 PImage glitchImage;
-int glitchMode = 0;
-int loops = 20;
+//int loops = 20;
+
+// threshold values to determine sorting start and end pixels
+int glitchMode = 1;
 int blackValue = -16000000;
+int brightnessValue = 60;
 int row = 0;
 int column = 0;
+
 int lastOrigMovieTime = 0;
 float colorThreshold = 0;
 float glitchAlpha = 0;
@@ -224,6 +227,10 @@ void movieEvent(Movie m) {
   
 }
 
+///////////////////////////////////////////////////////////////////////////////////
+// Glitch functions credited to: Kim Asendorf, kimasendorf.com, ASDF Pixel Sort. //
+///////////////////////////////////////////////////////////////////////////////////
+
 void modifyGlitch() {
   
   // Reset column & row counter if necessary.
@@ -254,7 +261,6 @@ void modifyGlitch() {
   
 }
 
-// Glitch function credited to: Kim Asendorf, kimasendorf.com, ASDF Pixel Sort.
 void sortRow() {
   // current row
   int y = row;
@@ -272,8 +278,8 @@ void sortRow() {
         xend = getNextBlackX(x, y);
         break;
       case 1:
-        //x = getFirstBrightX(x, y);
-        //xend = getNextDarkX(x, y);
+        x = getFirstBrightX(x, y);
+        xend = getNextDarkX(x, y);
         break;
       case 2:
         //x = getFirstNotWhiteX(x, y);
@@ -321,8 +327,8 @@ void sortColumn() {
         yend = getNextBlackY(x, y);
         break;
       case 1:
-        //y = getFirstBrightY(x, y);
-        //yend = getNextDarkY(x, y);
+        y = getFirstBrightY(x, y);
+        yend = getNextDarkY(x, y);
         break;
       case 2:
         //y = getFirstNotWhiteY(x, y);
@@ -377,6 +383,29 @@ int getNextBlackX(int x, int y) {
   return x-1;
 }
 
+// brightness x
+int getFirstBrightX(int x, int y) {
+  
+  while(brightness(glitchImage.pixels[x + y * glitchImage.width]) < brightnessValue) {
+    x++;
+    if(x >= glitchImage.width)
+      return -1;
+  }
+  
+  return x;
+}
+
+int getNextDarkX(int _x, int _y) {
+  int x = _x+1;
+  int y = _y;
+  
+  while(brightness(glitchImage.pixels[x + y * glitchImage.width]) > brightnessValue) {
+    x++;
+    if(x >= glitchImage.width) return glitchImage.width-1;
+  }
+  return x-1;
+}
+
 // black y
 int getFirstNotBlackY(int x, int y) {
 
@@ -402,5 +431,32 @@ int getNextBlackY(int x, int y) {
     }
   }
   
+  return y-1;
+}
+
+// brightness y
+int getFirstBrightY(int x, int y) {
+
+  if(y < glitchImage.height) {
+    while(brightness(glitchImage.pixels[x + y * glitchImage.width]) < brightnessValue) {
+      y++;
+      if(y >= glitchImage.height)
+        return -1;
+    }
+  }
+  
+  return y;
+}
+
+int getNextDarkY(int x, int y) {
+  y++;
+
+  if(y < glitchImage.height) {
+    while(brightness(glitchImage.pixels[x + y * glitchImage.width]) > brightnessValue) {
+      y++;
+      if(y >= glitchImage.height)
+        return glitchImage.height-1;
+    }
+  }
   return y-1;
 }
