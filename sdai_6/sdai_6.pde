@@ -53,6 +53,7 @@ void setup() {
     for (int i = 0; i < errorImages.length; i++) {
       errorImages[i] = loadImage("error-linux-"+ (i + 1) +".png" );
     }
+    blendMode(SCREEN);
   }
   
   origMovie.loop();                                      //DEV
