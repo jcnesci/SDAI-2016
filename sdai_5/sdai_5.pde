@@ -8,11 +8,13 @@
 import processing.video.*;
 
 int appFrameRate = 200;
-int origMovieFrameRate = 10;
+float startingOrigMovieFrameRate = 200; 
+float origMovieFrameRate = startingOrigMovieFrameRate;
 Movie origMovie;                                      // The original movie, without glitching/effects.
 boolean showOrigMovie = true;
 boolean isFirstLoop = true;
 PImage glitchImage;
+PImage errorImg;
 int mode = 0;
 int loops = 20;
 int blackValue = -16000000;
@@ -29,6 +31,7 @@ void setup() {
   //origMovie.loop();                                      //DEV
   origMovie.play();                                      //DEV
   origMovie.volume(0);
+  errorImg = loadImage("error-mac-red-1.png");
   surface.setResizable(true);
   
 }
@@ -47,8 +50,14 @@ void draw() {
   //////////////////// PART 1 : The Airship ////////////////////
   //////////////////////////////////////////////////////////////
   
+  float origMovieProgressNorm = origMovie.time()/origMovie.duration();
+  float startGlitchThresholdNorm = 0.5;
+  
   // The original movie's image.
   if (showOrigMovie) {
+    if (origMovieProgressNorm >= startGlitchThresholdNorm) {
+      origMovieFrameRate = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, startingOrigMovieFrameRate, 10);
+    }
     if ((millis()-lastOrigMovieTime) >= (1000/origMovieFrameRate)) {
       tint(255, 255, 255 , 255);                                        // ie. tint(R,G,B,A) : [0-255]
       image(origMovie, 0, 0);
@@ -57,8 +66,6 @@ void draw() {
   }
   
   // The glitched movie image. Show it based on progress of the original movie.
-  float origMovieProgressNorm = origMovie.time()/origMovie.duration();
-  float startGlitchThresholdNorm = 0.5;
   if (origMovieProgressNorm >= startGlitchThresholdNorm) {
     float glitchAlpha = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0, 255);
     println("Running glitch | Alpha: "+ glitchAlpha);
@@ -70,6 +77,13 @@ void draw() {
   float colorThreshold = map(origMovieProgressNorm, startGlitchThresholdNorm, 1.0, 0.0, 1.0);
   if (random(1) > colorThreshold) {
     filter(GRAY);
+  }
+  
+  // Error dialogs.
+  if (origMovieProgressNorm >= 0.2 && origMovieProgressNorm <= 0.4) {
+    if (random(1) > 0.5) {
+      image(errorImg, 0, 0);
+    }
   }
   
 }
