@@ -8,9 +8,9 @@
 
 import processing.video.*;
 
-String mainCharacter = "kuno";                               // is 'vashti' or 'kuno'. 
+String mainCharacter = "vashti";                               // is 'vashti' or 'kuno'. 
 int appFrameRate = 200;
-float origMovieFrameRate = 60;
+float origMovieFrameRate = 30;
 Movie origMovie;                                      // The original movie, without glitching/effects.
 boolean showOrigMovie = true;
 boolean isFirstLoop = true;
@@ -18,7 +18,7 @@ PImage glitchImage;
 //int loops = 20;
 
 // threshold values to determine sorting start and end pixels
-int glitchMode = 1;
+int glitchMode = 0;
 int blackValue = -16000000;
 int brightnessValue = 60;
 int row = 0;
@@ -59,8 +59,8 @@ void setup() {
     blendMode(SCREEN);
   }
   
-  origMovie.loop();                                      //DEV
-  //origMovie.play();                                      //DEV
+  //origMovie.loop();                                      //DEV
+  origMovie.play();                                      //DEV
   origMovie.volume(0);
   
 }
@@ -225,6 +225,16 @@ void movieEvent(Movie m) {
   
   modifyGlitch();
   
+}
+
+void keyPressed() {
+  if (key == 'p') {
+    origMovie.play();
+  } else if (key == 'P') {
+    origMovie.pause();  
+  } else if (key == 's') {
+    origMovie.stop();
+  }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////
