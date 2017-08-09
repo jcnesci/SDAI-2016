@@ -10,6 +10,6 @@ A Processing script takes multiple video and image assets and produces a two vid
 
 ## Example
 
-Here's a little taste of 1 of the 2 final 15 minute videos.
+Here's a little taste of the Vashti (Mac OSX) video.
 
-![alt text](https://github.com/jcnesci/SDAI-2016/blob/master/example/SDAI_JCNesci-sosoblogpreview.gif "Logo Title Text 1")
+![Vashti](https://github.com/jcnesci/SDAI-2016/blob/master/example/SDAI_JCNesci-sosoblogpreview.gif "Vashti")
