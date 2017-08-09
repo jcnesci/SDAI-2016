@@ -12,4 +12,4 @@ A Processing script takes multiple video and image assets and produces a two vid
 
 Here's a little taste of 1 of the 2 final 15 minute videos.
 
-![alt text](https://github.com/jcnesci/SDAI-2016/example/SDAI_JCNesci-sosoblogpreview.gif "Logo Title Text 1")
+![alt text](https://github.com/jcnesci/SDAI-2016/blob/master/example/SDAI_JCNesci-sosoblogpreview.gif "Logo Title Text 1")
